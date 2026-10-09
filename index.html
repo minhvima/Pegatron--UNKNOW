@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Dây chuyền phân loại S·M·L</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -21,17 +21,26 @@
   --bg:#10161c; --surface:#18212a; --ink:#e6edf3; --muted:#93a4b3; --line:#2b3844;
   --accent:#ff7a2e; --accent-ink:#1a0d04; --stage:#1c2731; color-scheme:dark}
 body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.55}
-.wrap{max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:28px 56px;display:flex;flex-direction:column;gap:22px}
-header{display:flex;flex-direction:column;gap:6px}
-.eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:20px 56px;display:flex;flex-direction:column;gap:14px}
+header{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:16px 28px}
+.hd-main{display:flex;flex-direction:column;gap:6px;flex:1 1 560px;min-width:0}
+.team{flex:0 1 300px;border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--surface);border-radius:8px;padding:12px 16px;display:flex;flex-direction:column;gap:2px}
+.team-k{font-size:12.5px;color:var(--muted)}
+.team-n{font-family:var(--font-display);font-weight:800;font-size:24px;letter-spacing:.04em;color:var(--accent);line-height:1.2}
+.team-f{font-weight:600;font-size:14.5px}
+.team-u{font-size:12.5px;color:var(--muted)}
+.eyebrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-bottom:4px}
+.eyebrow .contest{font-family:var(--font-display);font-weight:800;font-size:clamp(18px,2vw,22px);letter-spacing:.06em;color:var(--accent-ink);background:var(--accent);padding:4px 12px;border-radius:5px;line-height:1.3}
+.eyebrow .sub{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 h1{font-family:var(--font-display);font-weight:800;font-size:clamp(24px,3.4vw,36px);line-height:1.15;margin:0;text-wrap:balance;letter-spacing:-.01em}
 h1 span{color:var(--accent)}
 .lead{color:var(--muted);max-width:72ch;margin:0}
-.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;scroll-margin-top:10px}
 .tab{font:inherit;font-size:14px;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 12px;border-radius:6px;cursor:pointer}
 .tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .tab:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.stage{position:relative;width:100%;aspect-ratio:16/10;max-width:100%;background:var(--stage);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.viewer{position:relative;min-width:0}
+.stage{position:relative;width:100%;height:clamp(320px,calc(100svh - 150px),900px);max-width:100%;touch-action:none;background:var(--stage);border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .stage canvas{display:block;width:100%!important;height:100%!important}
 .cap{position:absolute;left:14px;bottom:12px;max-width:min(500px,calc(100% - 300px));background:color-mix(in srgb,var(--surface) 92%,transparent);border:1px solid var(--line);border-radius:6px;padding:10px 14px;pointer-events:none}
 .cap b{display:block;font-family:var(--font-display);font-size:16px;font-weight:700;margin-bottom:2px}
@@ -61,18 +70,42 @@ td:first-child{color:var(--muted);width:42%}
 td.mono{font-family:var(--font-mono);font-size:13px}
 .note{font-size:13px;color:var(--muted);margin:10px 0 0}
 @media (max-width:860px){.cap{max-width:calc(100% - 28px)}}
-@media (max-width:560px){.cap ol{font-size:12px}.cap p{font-size:12px}.cap{padding:8px 10px}.legend{display:none}.stage{aspect-ratio:4/5}}
+/* phones & small tablets: caption and legend leave the 3D view and sit below it */
+@media (max-width:640px){
+  .wrap{padding-inline:16px;padding-block:14px 40px;gap:12px}
+  .lead{font-size:14px}
+  .team{flex:1 1 100%;padding:10px 14px}.team-n{font-size:20px}
+  .tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;margin-inline:-16px;padding-inline:16px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;font-size:13px;padding:7px 10px}
+  .stage{border-radius:8px}
+  .cap,.legend{position:static;max-width:none;margin-top:8px;background:var(--surface)}
+  .legend{justify-content:center;flex-wrap:wrap}
+  .cap b{font-size:15px}.cap ol,.cap p{font-size:13px}
+  .hud{right:8px;top:8px;font-size:11px}.hud div{padding:3px 6px}
+  .ctrl{gap:8px 10px}.ctrl .btn{flex:1 1 auto}
+  .ctrl label{flex:1 1 100%;justify-content:space-between}.ctrl input[type=range]{flex:1;width:auto}
+  .stats{flex:1 1 100%}.stats span{flex:1 1 auto;text-align:center}
+}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
 body.export .wrap{padding:0;max-width:none}
 body.export header,body.export .tabs,body.export .ctrl,body.export .grid{display:none}
-body.export .stage{border-radius:0;border:0}
+body.export .stage{border-radius:0;border:0;height:auto!important;aspect-ratio:16/10}
 </style>
 
 <div class="wrap">
   <header>
-    <div class="eyebrow">VMU – PEGATRON 2026 · Phân loại sản phẩm theo chiều cao</div>
+   <div class="hd-main">
+    <div class="eyebrow"><span class="contest">VMU – PEGATRON 2026</span><span class="sub">Cuộc thi Sáng tạo Kỹ thuật · Phân loại sản phẩm theo chiều cao</span></div>
     <h1>Dây chuyền phân loại <span>S · M · L</span> bằng 2 trạm ToF + solenoid đẩy</h1>
     <p class="lead">Mỗi trạm có một cảm biến ToF nhìn thẳng xuống băng và một solenoid đẩy ngay tại vùng đo. Trạm 1 gạt S, trạm 2 đo lại và gạt M, sản phẩm L đi hết băng vào khay cuối. Kéo để xoay, cuộn để phóng to.</p>
+     </div>
+   <aside class="team" aria-label="Nhóm thực hiện">
+     <div class="team-k">Ý tưởng thực hiện của nhóm</div>
+     <div class="team-n">UNKNOW</div>
+     <div class="team-f">Khoa Công nghệ thông tin</div>
+     <div class="team-u">Trường Đại học Hàng hải Việt Nam</div>
+   </aside>
   </header>
 
   <div class="tabs" role="tablist" id="tabs">
@@ -84,9 +117,11 @@ body.export .stage{border-radius:0;border:0}
     <button class="tab" role="tab" data-scene="sim" aria-selected="false">▶ Mô phỏng lượt thi</button>
   </div>
 
-  <div class="stage" id="stage">
+  <div class="viewer" id="viewer">
+    <div class="stage" id="stage">
+      <div class="hud" id="hud" hidden></div>
+    </div>
     <div class="cap" id="cap"></div>
-    <div class="hud" id="hud" hidden></div>
     <div class="legend"><span><i style="background:var(--s)"></i>S · 30 mm</span><span><i style="background:var(--m)"></i>M · 50 mm</span><span><i style="background:var(--l)"></i>L · 70 mm</span></div>
   </div>
 
@@ -1253,11 +1288,29 @@ applyTheme();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
 new MutationObserver(applyTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 
+const tabsEl=document.getElementById('tabs'), ctrlEl=document.getElementById('ctrl');
+const isPhone=()=>innerWidth<=640;
+// Height so that tabs + 3D view + control bar fill exactly one screen
+function fitStage(){
+  if(document.body.classList.contains('export')) return;
+  const vh=window.innerHeight; let h;
+  if(isPhone()){ h=Math.min(vh*0.52, innerWidth*1.0); h=Math.max(280,h); }
+  else{
+    const ctrlH = current==='sim' ? (ctrlEl.offsetHeight||44) : 0;
+    h = vh - tabsEl.offsetHeight - ctrlH - (current==='sim'?14:0) - 14 - 24;
+    h = Math.max(320, Math.min(h, 1000, stage.clientWidth*0.9));
+  }
+  stage.style.height=Math.round(h)+'px';
+}
+let lastAspect=0;
 function resize(){
   const w = stage.clientWidth, h = stage.clientHeight;
   renderer.setSize(w,h,false); camera.aspect = w/h; camera.updateProjectionMatrix();
+  if(lastAspect && Math.abs(w/h-lastAspect)/lastAspect>0.15 && typeof current!=='undefined') flyTo(...SCENES[current].cam,true);
+  lastAspect=w/h;
 }
 new ResizeObserver(resize).observe(stage);
+addEventListener('resize',()=>{fitStage();});
 
 // ---------- materials ----------
 const M = (c,o={}) => new T.MeshStandardMaterial(Object.assign({color:c, roughness:.6, metalness:.1}, o));
@@ -1427,7 +1480,7 @@ function product(cls,l=50,w=40){
 // ---------- labels ----------
 const LBL=[];
 const _wp=new THREE.Vector3();
-function sizeLabels(){const vh=stage.clientHeight||600, f=2*Math.tan(camera.fov*Math.PI/360)/vh;
+function sizeLabels(){const vh=stage.clientHeight||600, f=2*Math.tan(camera.fov*Math.PI/360)/vh*Math.max(.6,Math.min(1,stage.clientWidth/1000));
   for(const sp of LBL){sp.getWorldPosition(_wp);const k=camera.position.distanceTo(_wp)*f;sp.scale.set(sp.userData.px[0]*k,sp.userData.px[1]*k,1);}}
 function labelSprite(text,{size=15,bg='rgba(255,255,255,.95)',fg='#17212b',border='#17212b',accent=null}={}){
   const lines=text.split('\n'), fs=40, pad=18, lh=fs*1.28;
@@ -1497,14 +1550,16 @@ const simGroup = new T.Group(); scene.add(simGroup);
 function clear(g){if(g===labels)LBL.length=0;while(g.children.length){const c=g.children.pop();c.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material&&o.material.map)o.material.map.dispose();});}}
 const camTween={t:1};
 function flyTo(pos,tgt,instant){
-  const p=new T.Vector3(...pos), t=new T.Vector3(...tgt);
+  const t=new T.Vector3(...tgt), p=new T.Vector3(...pos);
+  const asp=stage.clientWidth/Math.max(1,stage.clientHeight), ref=1.75;
+  if(asp<ref){ const k=Math.min(2.8,Math.pow(ref/asp,asp<1.1?1.05:0.85)); const off=p.clone().sub(t); if(asp<1.1){t.x+=90;t.y-=50;} p.copy(t).add(off.multiplyScalar(k)); }
   if(instant){camera.position.copy(p);controls.target.copy(t);camTween.t=1;return;}
   Object.assign(camTween,{t:0,p0:camera.position.clone(),t0:controls.target.clone(),p1:p,t1:t});
 }
 const ACC = '#e8590c';
 const SCENES = {
   overview:{
-    cam:[[1060,820,1120],[470,-80,10]],
+    cam:[[920,700,960],[470,-70,10]],
     cap:'<b>Toàn cảnh hệ thống</b><p>Băng tải 100 × 800 mm chạy liên tục. Hai trạm đo-đẩy đặt tại x = 300 mm và x = 500 mm, hai máng S và M cùng phía, khay L ở cuối băng.</p>',
     build(){
       const a=product('L',52,40); placeOnBelt(a,140); posed.add(a);
@@ -1579,12 +1634,12 @@ const SCENES = {
     }
   },
   sim:{
-    cam:[[1000,760,1000],[470,-80,10]],
+    cam:[[860,600,820],[470,-70,10]],
     cap:'<b>Mô phỏng một lượt thi</b><p>18 sản phẩm (6 S, 6 M, 6 L) theo thứ tự ngẫu nhiên. Chiều cao đo có nhiễu ±0,4 mm.</p>',
     build(){ label(labels,'Trạm 1 · S',null,[STX[0],150,-40],{accent:'#2f7fe0'}); label(labels,'Trạm 2 · M',null,[STX[1],150,-40],{accent:'#e7a20f'}); }
   }
 };
-let current='overview';
+var current='overview';
 function setScene(name,instant){
   current=name; clear(posed); clear(labels);
   stations.forEach(s=>{s.setExt(0);s.phase='idle';});
@@ -1595,6 +1650,7 @@ function setScene(name,instant){
   capEl.innerHTML=SCENES[name].cap;
   document.getElementById('ctrl').hidden = name!=='sim';
   hudEl.hidden = name!=='sim';
+  fitStage(); resize();
   flyTo(...SCENES[name].cam,instant);
   document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.scene===name));
 }
@@ -1678,7 +1734,14 @@ function loop(now){
   controls.update(); sizeLabels(); renderer.render(scene,camera);
   requestAnimationFrame(loop);
 }
-document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setScene(b.dataset.scene)));
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+  setScene(b.dataset.scene);
+  b.scrollIntoView({block:'nearest',inline:'center'});
+  if(!isPhone()){ const r=ctrlEl.getBoundingClientRect(), t=tabsEl.getBoundingClientRect();
+    const bottom = b.dataset.scene==='sim' ? r.bottom : stage.getBoundingClientRect().bottom;
+    if(t.top<0 || bottom>innerHeight) tabsEl.scrollIntoView({behavior:'smooth',block:'start'}); }
+}));
+fitStage();
 resize();
 const start=()=>{ sim.reset(); setScene(location.hash==='#sim'?'sim':'overview',true); requestAnimationFrame(loop); };
 Promise.race([document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(), new Promise(r=>setTimeout(r,1200))]).then(start);
