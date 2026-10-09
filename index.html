@@ -2,7 +2,7 @@
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dây chuyền phân loại S·M·L</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 [hidden]{display:none!important}body{margin:0}
 /* Layout: technical sheet — header strip, a large 3D stage with scene tabs, then flowchart + spec sheet side by side */
@@ -1225,7 +1225,9 @@ const hudEl = document.getElementById('hud');
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
 // ---------- renderer / scene ----------
-const renderer = new T.WebGLRenderer({antialias:true, preserveDrawingBuffer:true});
+let renderer;
+try { renderer = new T.WebGLRenderer({antialias:true, preserveDrawingBuffer:true}); }
+catch(e){ capEl.innerHTML='<b>Trình duyệt chưa bật WebGL</b><p>Hãy mở bằng Chrome hoặc Edge bản mới và bật “Sử dụng tăng tốc phần cứng” trong Cài đặt → Hệ thống, rồi tải lại trang.</p>'; return; }
 renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = T.PCFSoftShadowMap;
@@ -1679,7 +1681,7 @@ function loop(now){
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setScene(b.dataset.scene)));
 resize();
 const start=()=>{ sim.reset(); setScene(location.hash==='#sim'?'sim':'overview',true); requestAnimationFrame(loop); };
-(document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(start);
+Promise.race([document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(), new Promise(r=>setTimeout(r,1200))]).then(start);
 window.__p3d={setScene,render:()=>{controls.update();sizeLabels();renderer.render(scene,camera);}};
 })();
 </script>
