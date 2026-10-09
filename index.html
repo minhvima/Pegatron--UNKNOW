@@ -55,7 +55,10 @@ h1 span{color:var(--accent)}
 .btn{font:inherit;font-weight:600;font-size:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 14px;border-radius:6px;cursor:pointer}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .ctrl label{font-size:13.5px;color:var(--muted);display:flex;align-items:center;gap:8px}
-.ctrl input[type=range]{accent-color:var(--accent);width:140px}
+.ctrl input[type=range]{accent-color:var(--accent);width:120px}
+.ctrl input[type=number]{font:inherit;font-family:var(--font-mono);width:56px;padding:5px 6px;border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--ink)}
+.ctrl .mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.stats .bad{color:var(--l)}
 .stats{display:flex;flex-wrap:wrap;gap:6px;font-family:var(--font-mono);font-size:13px;font-variant-numeric:tabular-nums}
 .stats span{border:1px solid var(--line);border-radius:5px;padding:4px 8px;background:var(--surface)}
 .grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px}
@@ -128,7 +131,9 @@ body.export .stage{border-radius:0;border:0;height:auto!important;aspect-ratio:1
   <div class="ctrl" id="ctrl" hidden>
     <button class="btn primary" id="run">Chạy lượt 18 sản phẩm</button>
     <button class="btn" id="reset">Đặt lại</button>
-    <label for="spd">Tốc độ băng <input type="range" id="spd" min="60" max="250" step="10" value="120"><b id="spdv" style="font-family:var(--font-mono)">120 mm/s</b></label>
+    <label for="nper">Số SP mỗi loại <input type="number" id="nper" min="1" max="15" step="1" value="6" inputmode="numeric"><b class="mono" id="nperv">= 18 SP</b></label>
+    <label for="gap">Khoảng cách <input type="range" id="gap" min="0" max="200" step="5" value="60"><b class="mono" id="gapv">60 mm</b></label>
+    <label for="spd">Tốc độ băng <input type="range" id="spd" min="60" max="250" step="10" value="120"><b class="mono" id="spdv">120 mm/s</b></label>
     <div class="stats" id="stats"></div>
   </div>
 
@@ -1635,7 +1640,7 @@ const SCENES = {
   },
   sim:{
     cam:[[860,600,820],[470,-70,10]],
-    cap:'<b>Mô phỏng một lượt thi</b><p>18 sản phẩm (6 S, 6 M, 6 L) theo thứ tự ngẫu nhiên. Chiều cao đo có nhiễu ±0,4 mm.</p>',
+    cap:'<b>Mô phỏng một lượt thi</b><p>Mặc định 18 sản phẩm (6 S, 6 M, 6 L) như thể lệ, thứ tự ngẫu nhiên. Khoảng cách quá nhỏ thì bàn đẩy rộng 60 mm sẽ gạt kèm sản phẩm bên cạnh.</p>',
     build(){ label(labels,'Trạm 1 · S',null,[STX[0],150,-40],{accent:'#2f7fe0'}); label(labels,'Trạm 2 · M',null,[STX[1],150,-40],{accent:'#e7a20f'}); }
   }
 };
@@ -1656,32 +1661,33 @@ function setScene(name,instant){
 }
 
 // ---------- simulation ----------
-const sim = {running:false, v:120, items:[], queue:[], counts:{S:0,M:0,L:0}, ok:0, t:0, done:false, reads:['–','–']};
+const sim = {running:false, v:120, nPer:6, gap:60, items:[], queue:[], counts:{S:0,M:0,L:0}, ok:0, t:0, done:false, reads:['–','–']};
 function rnd(a,b){return a+Math.random()*(b-a);}
 function gauss(){return (Math.random()+Math.random()+Math.random()-1.5)*0.55;}
 sim.reset=function(){
-  clear(simGroup); sim.items=[]; sim.counts={S:0,M:0,L:0}; sim.ok=0; sim.t=0; sim.done=false; sim.reads=['–','–'];
-  const q=[];['S','M','L'].forEach(k=>{for(let i=0;i<6;i++)q.push(k);});
+  clear(simGroup); sim.items=[]; sim.counts={S:0,M:0,L:0}; sim.ok=0; sim.t=0; sim.done=false; sim.collide=0; sim.reads=['–','–'];
+  const q=[];['S','M','L'].forEach(k=>{for(let i=0;i<sim.nPer;i++)q.push({k,l:Math.round(rnd(45,55)),w:Math.round(rnd(35,45))});});
   for(let i=q.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[q[i],q[j]]=[q[j],q[i]];}
   sim.queue=q; stations.forEach(s=>{s.setExt(0);s.phase='idle';});
   sim.running=false; updRun(); hud();
 };
 sim.poseAll=function(){ if(!sim.items.length && !sim.queue.length) sim.reset(); };
 sim.spawn=function(){
-  const k=sim.queue.shift(), p=product(k,Math.round(rnd(45,55)),Math.round(rnd(35,45)));
+  const q=sim.queue.shift(), k=q.k, p=product(k,q.l,q.w);
   placeOnBelt(p,-30+p.userData.l/2+10); simGroup.add(p);
   sim.items.push({p,cls:k,x:p.position.x,z:0,state:'belt',chk:[false,false],s:0});
 };
 function hud(){
   hudEl.innerHTML='<div>Trạm 1 · h đo: '+sim.reads[0]+'</div><div>Trạm 2 · h đo: '+sim.reads[1]+'</div>';
   document.getElementById('stats').innerHTML=
-    '<span>S '+sim.counts.S+'/6</span><span>M '+sim.counts.M+'/6</span><span>L '+sim.counts.L+'/6</span><span>Đúng '+sim.ok+'/18</span><span>t = '+sim.t.toFixed(1)+' s</span>';
+    (()=>{const n=sim.nPer, N=3*n, done=sim.items.filter(i=>i.state==='tray').length, bad=done-sim.ok;
+      return '<span>Khay S '+sim.counts.S+'</span><span>Khay M '+sim.counts.M+'</span><span>Khay L '+sim.counts.L+'</span><span>Đúng '+sim.ok+'/'+N+'</span>'+(bad?'<span class="bad">Sai '+bad+(sim.collide?' · '+sim.collide+' SP bị gạt kèm':'')+'</span>':'')+'<span>t = '+sim.t.toFixed(1)+' s</span>';})();
 }
 function step(dt){
   sim.t+=dt;
   btex.offset.x -= sim.v*dt/64;
   const last=sim.items[sim.items.length-1];
-  if(sim.queue.length && (!last || last.x - last.p.userData.l/2 > 115)) sim.spawn();
+  if(sim.queue.length && (!last || last.x - last.p.userData.l/2 >= -20 + sim.queue[0].l + sim.gap)) sim.spawn();
   stations.forEach(st=>{
     if(st.phase==='out'){st.setExt(Math.min(1,st.ext+dt/0.08));}
     else if(st.phase==='in'){st.setExt(Math.max(0,st.ext-dt/0.12)); if(st.ext===0) st.phase='idle';}
@@ -1694,7 +1700,10 @@ function step(dt){
         if(!it.chk[i] && it.x>=STX[i]){
           it.chk[i]=true; const h=d.h+gauss(); sim.reads[i]=h.toFixed(1)+' mm → '+(h<40?'S':h<60?'M':'L');
           const hit = i===0 ? h<40 : (h>=40 && h<60);
-          if(hit && stations[i].phase==='idle'){ it.state='push'; it.st=i; it.x=STX[i]; it.p.position.x=it.x; stations[i].phase='out'; it.tray=i?'M':'S'; }
+          if(hit && stations[i].phase==='idle'){ it.state='push'; it.st=i; it.x=STX[i]; it.p.position.x=it.x; stations[i].phase='out'; it.tray=i?'M':'S';
+            // bàn đẩy rộng 60 mm: sản phẩm bên cạnh lọt vào vùng bàn đẩy sẽ bị gạt theo
+            for(const o of sim.items){ if(o!==it && o.state==='belt' && Math.abs(o.x-STX[i]) < 30 + o.p.userData.l/2 - 3){ o.state='push'; o.st=i; o.tray=it.tray; sim.collide=(sim.collide||0)+1; } }
+          }
         }
       }
       if(it.state==='belt' && it.x>BELT_L+4){ it.state='end'; it.s=0; it.tray='L'; }
@@ -1718,11 +1727,15 @@ function step(dt){
   if(!sim.queue.length && sim.items.every(i=>i.state==='tray')){ sim.running=false; sim.done=true; updRun(); }
 }
 const runBtn=document.getElementById('run');
-function updRun(){ runBtn.textContent = sim.running ? 'Tạm dừng' : (sim.done ? 'Chạy lượt mới' : (sim.t>0?'Tiếp tục':'Chạy lượt 18 sản phẩm')); }
+function updRun(){ runBtn.textContent = sim.running ? 'Tạm dừng' : (sim.done ? 'Chạy lượt mới' : (sim.t>0?'Tiếp tục':'Chạy lượt '+(3*sim.nPer)+' sản phẩm')); }
 runBtn.addEventListener('click',()=>{ if(sim.done) sim.reset(); sim.running=!sim.running; updRun(); });
 document.getElementById('reset').addEventListener('click',()=>sim.reset());
 const spd=document.getElementById('spd');
 spd.addEventListener('input',()=>{sim.v=+spd.value;document.getElementById('spdv').textContent=spd.value+' mm/s';});
+const gapEl=document.getElementById('gap'), nEl=document.getElementById('nper');
+gapEl.addEventListener('input',()=>{sim.gap=+gapEl.value;document.getElementById('gapv').textContent=gapEl.value+' mm';});
+nEl.addEventListener('change',()=>{const n=Math.max(1,Math.min(15,Math.round(+nEl.value||6)));nEl.value=n;sim.nPer=n;
+  document.getElementById('nperv').textContent='= '+(3*n)+' SP';sim.reset();fitStage();});
 
 // ---------- loop ----------
 let lastT=performance.now(), hudT=0;
@@ -1745,7 +1758,7 @@ fitStage();
 resize();
 const start=()=>{ sim.reset(); setScene(location.hash==='#sim'?'sim':'overview',true); requestAnimationFrame(loop); };
 Promise.race([document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(), new Promise(r=>setTimeout(r,1200))]).then(start);
-window.__p3d={setScene,render:()=>{controls.update();sizeLabels();renderer.render(scene,camera);}};
+window.__p3d={fast:(sec)=>{for(let t=0;t<sec;t+=1/120){ if(!sim.running) break; step(1/120);} hud();},setScene,render:()=>{controls.update();sizeLabels();renderer.render(scene,camera);}};
 })();
 </script>
 
